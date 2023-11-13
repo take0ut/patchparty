@@ -36,18 +36,22 @@ func VerifyPassword(
 	return true
 }
 
-// CreateSession creates a session for a user.
+// CreateSession creates a session for a user and returns the cookie.
 func CreateSession(
-	users models.UserModel,
+	users *models.UserModel,
 	userID int,
 ) string {
 	sessionToken := HashAndSalt([]byte(strconv.Itoa(userID) + time.Now().String()))
 	users.SetUserSession(userID, sessionToken)
-	return sessionToken
+	return "patchparty_session=" + sessionToken + "; Path=/; Expires=" + getExpirationDate(7) + ";"
+}
+
+func getExpirationDate(days time.Duration) string {
+	return time.Now().Add(days * (24 * time.Hour)).String()
 }
 
 func CheckIfUserExists(
-	users models.UserModel,
+	users *models.UserModel,
 	email string,
 	username string,
 ) bool {
@@ -56,4 +60,12 @@ func CheckIfUserExists(
 		return false
 	}
 	return true
+}
+
+func LogoutUser(
+	users *models.UserModel,
+	userID int,
+) bool {
+	err := users.SetUserSession(userID, "")
+	return err == nil
 }

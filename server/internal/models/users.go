@@ -69,6 +69,13 @@ func (m *UserModel) GetUserById(id int) (User, error) {
 	return user, err
 }
 
+func (m *UserModel) GetUserByEmail(email string) (User, error) {
+	var user User
+	row := m.DB.QueryRow(getUserByIdQuery, email)
+	err := row.Scan(&user.ID, &user.UserName, &user.Email)
+	return user, err
+}
+
 func (m *UserModel) CheckIfUserExists(email string, username string) (bool, error) {
 	var user User
 	row := m.DB.QueryRow(checkIfUserExistsQuery, email, username)
